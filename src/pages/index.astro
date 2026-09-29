@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const recent = posts.slice(0, 5);
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title="Planck 的花园" description="一个大一新生的公开学习笔记">
+  <h1>你好，我是 Planck 👋</h1>
+  <p>
+    我是一名大一新生。这个网站是我的<strong>数字花园</strong>——我在这里公开记录学习过程：
+    学到的概念、踩过的坑、做的小项目。笔记不必完美，允许生长。
+  </p>
+  <p>
+    为什么是公开的？因为写清楚才算真懂，因为"三个月前的我"需要这些笔记，
+    也因为四年后这里会成为我最好的作品集。
+  </p>
+
+  <h2>最近的笔记</h2>
+  {
+    recent.length === 0 ? (
+      <p>还没有文章，第一篇正在酝酿中。</p>
+    ) : (
+      <ul class="post-list">
+        {recent.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            <span class="date">{formatDate(post.data.pubDate)}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  <p><a href="/blog">查看全部文章 →</a></p>
+</Base>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+  }
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .date {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+</style>
